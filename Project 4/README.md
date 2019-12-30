@@ -48,3 +48,68 @@ Update keys information in the dl.cfg file and then start working on below instr
 etl.py is reads data from S3, processes that data using Spark, and writes them back to S3.
 The script reads song_data and load_data from S3, transforms them to create five different tables, and writes them to partitioned parquet files in table directories on S3. Each of the five tables are written to parquet files in a separate analytics directory on S3. Each table has its own folder within the directory. Songs table files are partitioned by year and then artist. Time table files are partitioned by year and month. Songplays table files are partitioned by year and month. Each table includes the right columns and data types.
 
+As part of data processing, I used lambda function to extract the datetime from timestamp field and then extracted following fields like year, month, day, week, weekday from datetime.  In addition to that, I used dropDuplicates() function to eliminate duplicate rows from the records.
+ 
+ RESULTS:
+ 
+ Table: songs
+
++------------------+------------------+------------------+----+---------+
+|           song_id|             title|         artist_id|year| duration|
++------------------+------------------+------------------+----+---------+
+|SOBLFFE12AF72AA5BA|            Scream|ARJNIUY12298900C91|2009| 213.9424|
+|SOHKNRJ12A6701D1F8|      Drop of Rain|AR10USD1187B99F3F1|   0|189.57016|
+|SOHOZBI12A8C132E3C|       Smash It Up|AR0MWD61187B9B2B12|2000|195.39546|
+|SOOVHYF12A8C134892|   I'll Be Waiting|ARCLYBR1187FB53913|1989|304.56118|
+|SONRWUU12AF72A4283|Into The Nightlife|ARGE7G11187FB37E05|2008|240.63955|
++------------------+------------------+------------------+----+---------+
+
+Table: artists
+
++------------------+--------------------+--------------------+---------------+----------------+
+|         artist_id|         artist_name|     artist_location|artist_latitude|artist_longitude|
++------------------+--------------------+--------------------+---------------+----------------+
+|ARJNIUY12298900C91|        Adelitas Way|                    |           null|            null|
+|AR10USD1187B99F3F1|Tweeterfriendly M...|Burlington, Ontar...|           null|            null|
+|AR0MWD61187B9B2B12|International Noi...|                    |           null|            null|
+|ARCLYBR1187FB53913|          Neal Schon|       San Mateo, CA|       37.54703|      -122.31483|
+|ARGE7G11187FB37E05|        Cyndi Lauper|        Brooklyn, NY|           null|            null|
++------------------+--------------------+--------------------+---------------+----------------+
+
+Table: users
+
++------+---------+---------+------+-----+
+|userId|firstName| lastName|gender|level|
++------+---------+---------+------+-----+
+|    97|     Kate|  Harrell|     F| paid|
+|    97|     Kate|  Harrell|     F| paid|
+|    49|    Chloe|   Cuevas|     F| paid|
+|    44|   Aleena|    Kirby|     F| paid|
+|    88| Mohammad|Rodriguez|     M| paid|
++------+---------+---------+------+-----+
+
+Table: time
+
++----------+----+---+----+-----+----+-------+
+| timestamp|hour|day|week|month|year|weekday|
++----------+----+---+----+-----+----+-------+
+|1542296032|  15| 15|  46|   11|2018|      3|
+|1542299023|  16| 15|  46|   11|2018|      3|
+|1542318319|  21| 15|  46|   11|2018|      3|
+|1542321121|  22| 15|  46|   11|2018|      3|
+|1542786093|   7| 21|  47|   11|2018|      3|
++----------+----+---+----+-----+----+-------+
+
+Table: songplays
+
+----------+-------+-----+-------+---------+----------+--------------------+--------------------+----+-----+
+| timestamp|user_id|Level|song_Id|artist_Id|session_Id|            location|          user_Agent|year|month|
++----------+-------+-----+-------+---------+----------+--------------------+--------------------+----+-----+
+|1542296032|     97| paid|   null|     null|       605|Lansing-East Lans...|"Mozilla/5.0 (X11...|2018|   11|
+|1542299023|     97| paid|   null|     null|       605|Lansing-East Lans...|"Mozilla/5.0 (X11...|2018|   11|
+|1542318319|     49| paid|   null|     null|       630|San Francisco-Oak...|Mozilla/5.0 (Wind...|2018|   11|
+|1542321121|     44| paid|   null|     null|       619|Waterloo-Cedar Fa...|Mozilla/5.0 (Maci...|2018|   11|
+|1542786093|     88| paid|   null|     null|       744|Sacramento--Rosev...|"Mozilla/5.0 (Mac...|2018|   11|
++----------+-------+-----+-------+---------+----------+--------------------+--------------------+----+-----+
+
+

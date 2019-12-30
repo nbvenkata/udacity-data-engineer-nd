@@ -14,14 +14,19 @@ def create_spark_session():
 
 
 def process_song_data(spark, input_data, output_data):
-# """Insert records into songs and artists tables using data from song files."""
+    """
+    Read song data and process it and save to provided output location
+    :param spark: Spark session
+    :param input_data: Input url
+    :param output_data: Output location
+    """
+    # Insert records into songs and artists tables using data from song files.
     # get filepath to song data file
     song_data = os.path.join(input_data, "song_data/A/A/A/*.json")
     
     # read song data file
-    df = spark.read.json(song_data)
-    #song_df = spark.read.json(song_data)
-    
+    df = spark.read.json(song_data).dropDuplicates()
+        
     # extract columns to create songs table
     songs_table = df['song_id', 'title', 'artist_id', 'year', 'duration']
     
@@ -36,15 +41,21 @@ def process_song_data(spark, input_data, output_data):
 
 
 def process_log_data(spark, input_data, output_data):
+    """
+    Read song data and process it and save to provided output location
+    :param spark: Spark session
+    :param input_data: Input url
+    :param output_data: Output location
+    """
+    # """Insert records into users, time and songplays tables using data from log files. """
     # get filepath to log data file
-    #log_data = os.path.join(input_data, "log_data/2018/11/*.json")
     log_data = os.path.join(input_data, "log_data/*/*/*.json")
 
     # read log data file
-    df = spark.read.json(log_data)
+    df = spark.read.json(log_data).dropDuplicates()
         
     # filter by actions for song plays
-    df = df[df.page == 'NextSong']
+    df = df.filter(df.page == 'NextSong')
 
     # extract columns for users table    
     users_table = df['userId', 'firstName', 'lastName', 'gender', 'level']
@@ -75,8 +86,7 @@ def process_log_data(spark, input_data, output_data):
     time_table.write.partitionBy('year', 'month').parquet(os.path.join(output_data, 'time'), 'overwrite')
 
     # read in song data to use for songplays table
-    song_data = os.path.join(input_data, "song_data/A/A/A/*.json")
-    song_df = spark.read.json(song_data) 
+    song_df = spark.read.json(input_data + "song-data/*/*/*/TRA*.json").dropDuplicates()
 
     # extract columns from joined song and log datasets to create songplays table 
     songplays_table = df.join(song_df,(df.song == song_df.title) & (df.artist == song_df.artist_name) & 
