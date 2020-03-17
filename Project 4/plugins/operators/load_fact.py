@@ -2,7 +2,6 @@ from airflow.hooks.postgres_hook import PostgresHook
 from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
 
-
 class LoadFactOperator(BaseOperator):
 
     ui_color = '#F98866'
@@ -28,7 +27,6 @@ class LoadFactOperator(BaseOperator):
     def execute(self, context):
         redshift = PostgresHook(postgres_conn_id=self.redshift_conn_id)
         self.log.info('Starting to load fact table %s' % self.table_name)
-        sql_statement = 'INSERT INTO %s %s' % (self.table_name,
-                                               self.sql_statement)
+        sql_statement = 'INSERT INTO %s %s' % (self.table_name, self.sql_statement)
         redshift.run(sql_statement)
         self.log.info('Fact table %s load finished' % self.table_name)
